@@ -18,3 +18,6 @@ app.add_middleware(
 @app.get("/")
 def read_root():
     return {"message": "Welcome to LLM Chat Backend"}
+
+
+app.include_router(llm_router)

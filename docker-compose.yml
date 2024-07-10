@@ -11,6 +11,8 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - rabbit_nework
 
   postgres:
     image: postgres:15
@@ -22,6 +24,25 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - rabbit_nework
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    pull_policy: always
+    tty: true
+    restart: always
+    ports:
+      - "${OLLAMA_PORT}:11434"
+    environment:
+      - OLLAMA_HOST=${OLLAMA_HOST}
+    entrypoint: ["/app/ollama_entrypoint.sh"]
+    volumes:
+      - .:/app
+    networks:
+      - rabbit_nework
+    
   
   fastapi:
     build: ./src
@@ -32,9 +53,16 @@ services:
     depends_on:
       - rabbitmq
       - postgres
+      - ollama
     volumes:
       - ./src:/app
+    networks:
+      - rabbit_nework
 
 volumes:
   postgres_data:
   rabbitmq_data:
+
+networks:
+  rabbit_nework:
+    driver: bridge

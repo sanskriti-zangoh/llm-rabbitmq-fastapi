@@ -44,6 +44,8 @@ class AnthropicConstant:
         CLAUDE_2_1 = "claude-2.1"
         CLAUDE_2_0 = "claude-2.0"
         CLAUDE_INSTANT_1_2 = "claude-instant-1.2"
+        LLAMA_3_0 = "llama3"
+        LLAMA_2_UNCENSORED = "llama2-uncensored"
 
 
 class ImageSource(BaseModel):
@@ -63,6 +65,9 @@ class MessageRequestValidation(BaseModel):
     content: str | Iterable[TextBlock | ImageBlock]
     role: AnthropicConstant.Role
 
+class MessageRequestOllama(BaseModel):
+    input: str
+
 class RequestValidation(BaseModel):
     messages: list[MessageRequestValidation]
     system: str | None = Field("You are a personal AI assistant",
@@ -77,4 +82,28 @@ class RequestValidation(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def to_py_dict(cls, data):
-        return json.loads(data)
+        if isinstance(data, dict):
+            # If data is already a dictionary, return it directly
+            return data
+        else:
+            # If data is not a dictionary, assume it's a JSON string
+            return json.loads(data)
+        
+class RequestValidationOllama(BaseModel):
+    messages: MessageRequestOllama
+    system: str | None = Field("You are a personal AI assistant",
+                               title='System', description='The system name.')
+    temperature: float | None = Field(0.8, title='Temperature', gt=0.0, le=1.0,
+                                      description='The sampling temperature.')
+    model: AnthropicConstant.Model | None = Field(AnthropicConstant.Model.LLAMA_3_0,
+                                                  title='Model', description='The model name.')
+
+    @model_validator(mode="before")
+    @classmethod
+    def to_py_dict(cls, data):
+        if isinstance(data, dict):
+            # If data is already a dictionary, return it directly
+            return data
+        else:
+            # If data is not a dictionary, assume it's a JSON string
+            return json.loads(data)

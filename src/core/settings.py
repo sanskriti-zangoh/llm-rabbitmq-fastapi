@@ -50,7 +50,7 @@ class AnthropicSettings(BaseSettings):
         env_file=".env", env_prefix="ANTHROPIC_", case_sensitive=False, extra="ignore"
     )
     api_key: str = os.environ.get('ANTHROPIC_API_KEY')
-    model: str = os.environ.get('GPT_MODEL', 'claude-3-opus-20240229')
+    model: str = os.environ.get('GPT_MODEL', 'claude-2.1')
     max_tokens: int = os.environ.get('MAX_TOKEN', 1024)
     temperature: float = os.environ.get('TEMPERATURE', 0.8)
 
