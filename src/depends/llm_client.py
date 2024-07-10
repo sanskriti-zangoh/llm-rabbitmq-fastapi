@@ -4,22 +4,26 @@ from api.schemas.llm import MessageRequestValidation, AnthropicConstant
 from core.settings import ServiceCallerConfig
 from exceptions.llm import ServiceError
 from anthropic import AsyncAnthropic
+from core.settings import load_settings, AnthropicSettings
+
+
+settings: AnthropicSettings = load_settings("AnthropicSettings")
 
 class AnthropicClient:
     def __init__(self):
         """
         Initialize Anthropic service.
         """
-        anthropic_api_key = ServiceCallerConfig.Anthropic.API_KEY
+        anthropic_api_key = settings.api_key
         if not anthropic_api_key:
             raise ServiceError("Anthropic API key is not set.")
 
         self.anthropic = AsyncAnthropic(api_key=anthropic_api_key)
 
     async def create_stream(self, messages: List[MessageRequestValidation], system: str,
-                            max_tokens: int = ServiceCallerConfig.Anthropic.MAX_TOKEN,
-                            temperature: float = ServiceCallerConfig.Anthropic.TEMPERATURE,
-                            model: AnthropicConstant.Model = ServiceCallerConfig.Anthropic.MODEL):
+                            max_tokens: int = settings.max_tokens,
+                            temperature: float = settings.temperature,
+                            model: AnthropicConstant.Model = settings.model):
         """
         Create stream message on anthropic.
 
